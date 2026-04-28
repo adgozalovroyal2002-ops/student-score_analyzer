@@ -81,14 +81,14 @@ jobs:
         run: npx eslint script.js
 
       - name: Minify JavaScript
-        run: npx terser script.js -o dist/app.min.js --compress --mangle
+        run: npx terser script.js -o dist/script.min.js --compress --mangle
 
       - name: Minify CSS
         run: npx cleancss -o dist/style.min.css style.css
 
       - name: Copy HTML to dist
         run: |
-          sed 's/style\.css/style.min.css/g; s/app\.js/app.min.js/g' index.html > dist/index.html
+          sed 's/style\.css/style.min.css/g; s/app\.js/script.min.js/g' index.html > dist/index.html
           echo "✔ index.html copied with minified references"
 
       - name: Prepare Release Package
