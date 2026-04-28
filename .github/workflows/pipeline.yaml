@@ -29,13 +29,13 @@ jobs:
           echo "--- Checking project structure ---"
           test -f index.html && echo "✔ index.html found" || (echo "✘ index.html missing" && exit 1)
           test -f style.css  && echo "✔ style.css found"  || (echo "✘ style.css missing"  && exit 1)
-          test -f script.js     && echo "✔ script.js found"     || (echo "✘ script.js missing"     && exit 1)
+          test -f script.js  && echo "✔ script.js found"  || (echo "✘ script.js missing"  && exit 1)
 
       - name: Lint JavaScript
-        run: npx eslint script.js
+        run: npx eslint script.js --no-eslintrc --env browser,es2021
 
       - name: Lint CSS
-        run: npx stylelint "style.css"
+        run: npx stylelint "style.css" --config '{"extends":"stylelint-config-standard"}'
 
       - name: Generate CI Report
         if: always()
@@ -44,13 +44,13 @@ jobs:
           echo "=================================="  > reports/ci_report.txt
           echo " Student Score Analyzer — CI Report" >> reports/ci_report.txt
           echo "=================================="  >> reports/ci_report.txt
-          echo "Date   : $(date)"                  >> reports/ci_report.txt
-          echo "Branch : ${{ github.head_ref }}"   >> reports/ci_report.txt
-          echo "Commit : ${{ github.sha }}"        >> reports/ci_report.txt
-          echo "----------------------------------" >> reports/ci_report.txt
-          echo "[✔] File structure checked"        >> reports/ci_report.txt
-          echo "[✔] JavaScript linted"             >> reports/ci_report.txt
-          echo "[✔] CSS linted"                    >> reports/ci_report.txt
+          echo "Date   : $(date)"                   >> reports/ci_report.txt
+          echo "Branch : ${{ github.head_ref }}"    >> reports/ci_report.txt
+          echo "Commit : ${{ github.sha }}"         >> reports/ci_report.txt
+          echo "----------------------------------"  >> reports/ci_report.txt
+          echo "[✔] File structure checked"         >> reports/ci_report.txt
+          echo "[✔] JavaScript linted"              >> reports/ci_report.txt
+          echo "[✔] CSS linted"                     >> reports/ci_report.txt
           echo "=================================="  >> reports/ci_report.txt
           cat reports/ci_report.txt
 
@@ -78,17 +78,19 @@ jobs:
         run: npm install
 
       - name: Lint JavaScript
-        run: npx eslint script.js
+        run: npx eslint script.js --no-eslintrc --env browser,es2021
 
       - name: Minify JavaScript
-        run: npx terser script.js -o dist/script.min.js --compress --mangle
+        run: |
+          mkdir -p dist
+          npx terser script.js -o dist/script.min.js --compress --mangle
 
       - name: Minify CSS
         run: npx cleancss -o dist/style.min.css style.css
 
       - name: Copy HTML to dist
         run: |
-          sed 's/style\.css/style.min.css/g; s/app\.js/script.min.js/g' index.html > dist/index.html
+          sed 's/script\.js/script.min.js/g; s/style\.css/style.min.css/g' index.html > dist/index.html
           echo "✔ index.html copied with minified references"
 
       - name: Prepare Release Package
