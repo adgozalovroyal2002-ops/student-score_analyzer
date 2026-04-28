@@ -29,10 +29,10 @@ jobs:
           echo "--- Checking project structure ---"
           test -f index.html && echo "✔ index.html found" || (echo "✘ index.html missing" && exit 1)
           test -f style.css  && echo "✔ style.css found"  || (echo "✘ style.css missing"  && exit 1)
-          test -f app.js     && echo "✔ app.js found"     || (echo "✘ app.js missing"     && exit 1)
+          test -f script.js     && echo "✔ script.js found"     || (echo "✘ script.js missing"     && exit 1)
 
       - name: Lint JavaScript
-        run: npx eslint app.js
+        run: npx eslint script.js
 
       - name: Lint CSS
         run: npx stylelint "style.css"
@@ -78,10 +78,10 @@ jobs:
         run: npm install
 
       - name: Lint JavaScript
-        run: npx eslint app.js
+        run: npx eslint script.js
 
       - name: Minify JavaScript
-        run: npx terser app.js -o dist/app.min.js --compress --mangle
+        run: npx terser script.js -o dist/app.min.js --compress --mangle
 
       - name: Minify CSS
         run: npx cleancss -o dist/style.min.css style.css
