@@ -35,7 +35,9 @@ jobs:
         run: npx eslint script.js --no-eslintrc --env browser,es2021
 
       - name: Lint CSS
-        run: npx stylelint "style.css" --config '{"extends":"stylelint-config-standard"}'
+        run: |
+          echo '{"extends":"stylelint-config-standard"}' > .stylelintrc.json
+          npx stylelint "style.css"
 
       - name: Generate CI Report
         if: always()
