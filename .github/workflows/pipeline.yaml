@@ -1,0 +1,118 @@
+name: CI/CD Pipeline - Student Score Analyzer
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  Build_Test:
+    name: Validate Web Files
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Check Required Files Exist
+        run: |
+          echo "--- Checking project structure ---"
+          test -f index.html && echo "✔ index.html found" || (echo "✘ index.html missing" && exit 1)
+          test -f style.css  && echo "✔ style.css found"  || (echo "✘ style.css missing"  && exit 1)
+          test -f script.js  && echo "✔ script.js found"  || (echo "✘ script.js missing"  && exit 1)
+
+      - name: Lint JavaScript
+        run: npx eslint script.js --no-eslintrc --env browser,es2021
+
+      - name: Lint CSS
+        run: |
+          echo '{"extends":"stylelint-config-standard"}' > .stylelintrc.json
+          npx stylelint "style.css"
+
+      - name: Generate CI Report
+        if: always()
+        run: |
+          mkdir -p reports
+          echo "=================================="  > reports/ci_report.txt
+          echo " Student Score Analyzer — CI Report" >> reports/ci_report.txt
+          echo "=================================="  >> reports/ci_report.txt
+          echo "Date   : $(date)"                   >> reports/ci_report.txt
+          echo "Branch : ${{ github.head_ref }}"    >> reports/ci_report.txt
+          echo "Commit : ${{ github.sha }}"         >> reports/ci_report.txt
+          echo "----------------------------------"  >> reports/ci_report.txt
+          echo "[✔] File structure checked"         >> reports/ci_report.txt
+          echo "[✔] JavaScript linted"              >> reports/ci_report.txt
+          echo "[✔] CSS linted"                     >> reports/ci_report.txt
+          echo "=================================="  >> reports/ci_report.txt
+          cat reports/ci_report.txt
+
+      - name: Upload CI Report as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-report
+          path: reports/ci_report.txt
+
+  Build_Deploy:
+    name: Build and Package Web Application
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Lint JavaScript
+        run: npx eslint script.js --no-eslintrc --env browser,es2021
+
+      - name: Minify JavaScript
+        run: |
+          mkdir -p dist
+          npx terser script.js -o dist/script.min.js --compress --mangle
+
+      - name: Minify CSS
+        run: npx cleancss -o dist/style.min.css style.css
+
+      - name: Copy HTML to dist
+        run: |
+          sed 's/script\.js/script.min.js/g; s/style\.css/style.min.css/g' index.html > dist/index.html
+          echo "✔ index.html copied with minified references"
+
+      - name: Prepare Release Package
+        run: |
+          mkdir -p release
+          cp -r dist/* release/
+          echo "=================================="   > release/deploy_log.txt
+          echo " Student Score Analyzer — Deploy Log" >> release/deploy_log.txt
+          echo "=================================="   >> release/deploy_log.txt
+          echo "Date   : $(date)"                    >> release/deploy_log.txt
+          echo "Branch : ${{ github.ref }}"          >> release/deploy_log.txt
+          echo "Commit : ${{ github.sha }}"          >> release/deploy_log.txt
+          echo "----------------------------------"   >> release/deploy_log.txt
+          echo "Release Files:"                      >> release/deploy_log.txt
+          ls -lh release/                            >> release/deploy_log.txt
+          echo "=================================="   >> release/deploy_log.txt
+          cat release/deploy_log.txt
+
+      - name: Upload Release as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: student-score-analyzer-release
+          path: release/

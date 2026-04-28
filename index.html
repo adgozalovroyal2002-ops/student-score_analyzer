@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Student Score Analyzer</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+</head>
+<body>
+
+  <div class="bg-orbs">
+    <div class="orb orb1"></div>
+    <div class="orb orb2"></div>
+    <div class="orb orb3"></div>
+  </div>
+
+  <div class="app">
+
+    <!-- HEADER -->
+    <header class="header">
+      <div class="logo">
+        <span class="logo-icon">🎓</span>
+        <div>
+          <h1 class="logo-title">Student Score Analyzer</h1>
+          <p class="logo-sub">Test nəticələrini daxil et, analiz al</p>
+        </div>
+      </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="main">
+
+      <!-- LEFT PANEL: Input -->
+      <section class="panel panel-input">
+        <div class="panel-header">
+          <span class="panel-num">01</span>
+          <h2>Şagird Nəticələri</h2>
+        </div>
+
+        <div class="form-group">
+          <label>Test adı (ixtiyari)</label>
+          <input type="text" id="testName" placeholder="Məs: Riyaziyyat — Fəsil 3" />
+        </div>
+
+        <div class="form-group">
+          <label>Maksimum bal</label>
+          <input type="number" id="maxScore" value="100" min="1" />
+        </div>
+
+        <div class="form-group">
+          <label>Şagird adları və balları</label>
+          <p class="hint">Hər sətirdə: <code>Ad Soyad, bal</code></p>
+          <textarea id="studentInput" rows="12" placeholder="Aytən Həsənova, 85
+Rauf Əliyev, 72
+Leyla Quliyeva, 91
+Murad Babayev, 60
+Nigar Mustafayeva, 78"></textarea>
+        </div>
+
+        <button class="btn-analyze" id="analyzeBtn" onclick="analyze()">
+          <span>Analiz Et</span>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+
+        <button class="btn-clear" onclick="clearAll()">Təmizlə</button>
+      </section>
+
+      <!-- RIGHT PANEL: Results -->
+      <section class="panel panel-results" id="resultsPanel">
+        <div class="panel-header">
+          <span class="panel-num">02</span>
+          <h2>Nəticə & Analiz</h2>
+        </div>
+
+        <div id="emptyState" class="empty-state">
+          <div class="empty-icon">📊</div>
+          <p>Nəticələr burada görünəcək</p>
+        </div>
+
+        <div id="results" class="hidden">
+
+          <!-- Summary Cards -->
+          <div class="stats-grid" id="statsGrid"></div>
+
+          <!-- Grade distribution bar -->
+          <div class="section-title">Qiymət Paylanması</div>
+          <div class="grade-bars" id="gradeBars"></div>
+
+          <!-- Score histogram -->
+          <div class="section-title">Bal Histoqramı</div>
+          <div class="histogram" id="histogram"></div>
+
+          <!-- Student table -->
+          <div class="section-title">Şagird Siyahısı</div>
+          <div class="table-wrap">
+            <table id="studentTable">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Ad</th>
+                  <th>Bal</th>
+                  <th>%</th>
+                  <th>Qiymət</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="tableBody"></tbody>
+            </table>
+          </div>
+
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
